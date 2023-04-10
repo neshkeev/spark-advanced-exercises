@@ -1,0 +1,10 @@
+#! /usr/bin/bash
+
+function configure_ssh() {
+    ssh-keyscan worker-1 > ~/.ssh/known_hosts
+#    ssh-copy-id yarn/yarn@worker-1
+#    ssh-copy-id hdfs/hdfs@worker-1
+}
+
+configure_ssh &&
+    start.sh jupyter lab -NotebookApp.token='' --NotebookApp.password=''

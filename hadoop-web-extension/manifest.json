@@ -1,0 +1,19 @@
+{
+    "name": "Hadoop Docker Links Remapper",
+    "version": "1.0.0",
+    "description": "Remaps links when Hadoop is run inside a container",
+    "manifest_version": 3,
+    "author": "Nikita Eshkeev",
+    "action": {},
+    "icons": {
+      "48": "icon48.jpg",
+      "128": "icon128.jpg"
+    },
+    "content_scripts": [
+    {
+      "js": ["index.js"],
+      "matches": ["http://*/*"],
+      "run_at": "document_idle"
+    }
+  ]
+}

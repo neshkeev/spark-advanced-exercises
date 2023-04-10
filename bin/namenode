@@ -1,0 +1,22 @@
+#! /usr/bin/bash
+
+function start_ssh() {
+  /usr/sbin/sshd
+}
+
+function start_namenode() {
+  su -l hdfs -c '/opt/hadoop/bin/hdfs --daemon start namenode'
+}
+
+function start_hdfs() {
+  su -l hdfs -c /opt/hadoop/sbin/start-dfs.sh
+}
+
+function loop() {
+  echo "Namenode started on $(hostname -i)"
+  while true ; do
+    sleep 600
+  done
+}
+
+start_ssh && start_namenode && loop

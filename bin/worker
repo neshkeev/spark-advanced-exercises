@@ -1,0 +1,29 @@
+#! /usr/bin/bash
+
+function start_ssh() {
+  /usr/sbin/sshd
+}
+
+function change_password() {
+    echo "hdfs:hdfs"|chpasswd
+    echo "yarn:yarn"|chpasswd
+}
+
+function start_datanode() {
+  su -l hdfs -c '/opt/hadoop/bin/hdfs --daemon start datanode'
+}
+
+function start_nodemanager() {
+  su -l hdfs -c '/opt/hadoop/bin/yarn --daemon start nodemanager'
+}
+
+function loop() {
+  echo "Worker started on $(hostname -i)"
+  while true ; do
+    sleep 600
+  done
+}
+
+start_ssh && change_password && start_datanode &&
+  start_nodemanager &&
+  loop

@@ -3,14 +3,89 @@ networks:
   pyspark_network:
 services:
   pyspark:
-    image: jupyter/pyspark-notebook
+    # image: jupyter/pyspark-notebook
+    build:
+      context: .
+      dockerfile: Dockerfile
     hostname: pyspark
     networks:
       - pyspark_network
-    command: "start.sh jupyter lab --NotebookApp.token='' --NotebookApp.password=''"
     ports:
       - 8888:8888
       - 4040:4040
       - 4041:4041
     volumes:
-      - ./notebooks:/home/jovyan/notebooks
+      - ./notebooks/yarn.ipynb:/home/jovyan/work/yarn.ipynb
+      - ./notebooks/cmd.ipynb:/home/jovyan/work/cmd.ipynb
+      - ./conf:/tmp/hadoop/conf
+      - ./bin/topology:/bin/topology
+    depends_on:
+      - worker-1
+      - worker-2
+      - worker-3
+      - resourcemanager
+    environment:
+      HADOOP_CONF_DIR: /tmp/hadoop/conf
+      YARN_CONF_DIR: /tmp/hadoop/conf
+  namenode:
+    image: neshkeev/hadoop
+    hostname: namenode
+    networks:
+      - pyspark_network
+    ports:
+      - 9870:9870
+      - 9000:9000
+      - 9864:9864
+    volumes:
+      - ./conf/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
+      - ./conf/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml
+      - ./bin/namenode:/bin/entrypoint
+      - ./bin/topology:/bin/topology
+  resourcemanager:
+    image: neshkeev/hadoop
+    hostname: resourcemanager
+    networks:
+      - pyspark_network
+    ports:
+      - 8088:8088
+    volumes:
+      - ./conf/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
+      - ./conf/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml
+      - ./conf/yarn-site.xml:/opt/hadoop/etc/hadoop/yarn-site.xml
+      - ./bin/resourcemanager:/bin/entrypoint
+      - ./bin/topology:/bin/topology
+  worker-1: &dn
+    image: neshkeev/hadoop
+    hostname: worker-1
+    networks:
+      - pyspark_network
+    ports:
+      - 19870:9870
+      - 19000:9000
+      - 19864:9864
+      - 18042:8042
+    volumes:
+      - ./conf/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
+      - ./conf/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml
+      - ./conf/yarn-site.xml:/opt/hadoop/etc/hadoop/yarn-site.xml
+      - ./bin/worker:/bin/entrypoint
+      - ./bin/topology:/bin/topology
+    depends_on:
+      - namenode
+      - resourcemanager
+  worker-2:
+    << : *dn
+    hostname: worker-2
+    ports:
+      - 29870:9870
+      - 29000:9000
+      - 29864:9864
+      - 28042:8042
+  worker-3:
+    << : *dn
+    hostname: worker-3
+    ports:
+      - 39870:9870
+      - 39000:9000
+      - 39864:9864
+      - 38042:8042

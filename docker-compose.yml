@@ -14,4 +14,4 @@ services:
       - 4041:4041
     volumes:
       - ./notebooks/Pregel.ipynb:/home/jovyan/work/Pregel.ipynb
-      - ./doc/5.graph:/home/jovyan/work/imgs
+      - ./doc/5.graph:/home/jovyan/work/doc/5.graph

@@ -1,13 +1,8 @@
 version: "3.8"
 
-networks:
-  spark_network:
-
 x-check-ports: &check-ports ./bin/check-ports:/bin/check-ports
 x-service-template: &template
   restart: on-failure
-  networks:
-    - spark_network
   healthcheck: &hc
     interval: 5s
     timeout: 3s
